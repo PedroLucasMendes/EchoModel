@@ -1,0 +1,27 @@
+# Core ML
+torch>=2.4.0
+torchvision>=0.19.0
+torchaudio>=2.4.0
+
+# Audio processing
+librosa>=0.10.2
+soundfile>=0.12.1
+
+# YOLO detector
+ultralytics>=8.2.0
+
+# Data wrangling
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.5.0
+
+# Image processing
+Pillow>=10.3.0
+
+# Download & IO
+requests>=2.31.0
+tqdm>=4.66.0
+pyyaml>=6.0.1
+
+# Optimised audio I/O (much faster than librosa for random seeks)
+soundfile>=0.12.1
