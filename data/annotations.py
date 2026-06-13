@@ -3,6 +3,7 @@ Load and normalise bounding-box annotation CSVs from all Zenodo datasets.
 Returns a single merged DataFrame with canonical column names.
 """
 import logging
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -11,15 +12,35 @@ from configs.config import RAW_DIR, DATASETS_TO_DOWNLOAD
 
 log = logging.getLogger(__name__)
 
-_RENAME = {
-    # Zenodo Bioacoustics datasets use title-case headers
-    "Filename": "filename",
-    "Begin Time (s)": "start_time",
-    "End Time (s)": "end_time",
-    "Low Freq (Hz)": "low_freq",
-    "High Freq (Hz)": "high_freq",
-    "Species eBird Code": "label",
-}
+# Patterns that identify each canonical column, matched against the
+# normalised (lowercase, no punctuation) raw column name.
+_PATTERNS: list[tuple[str, list[str]]] = [
+    ("filename",   ["filename", "file name", "file"]),
+    ("start_time", ["begin time", "start time", "tstart", "start"]),
+    ("end_time",   ["end time", "tend", "end"]),
+    ("low_freq",   ["low freq", "low frequency", "fmin", "freq low"]),
+    ("high_freq",  ["high freq", "high frequency", "fmax", "freq high"]),
+    ("label",      ["species ebird code", "ebird code", "species", "label", "class"]),
+]
+
+_REQUIRED = {"filename", "start_time", "end_time", "low_freq", "high_freq", "label"}
+
+
+def _normalise(s: str) -> str:
+    """Lowercase and strip punctuation/units for fuzzy column matching."""
+    return re.sub(r"[^a-z0-9 ]", " ", s.lower()).strip()
+
+
+def _map_columns(raw_cols: list[str]) -> dict[str, str]:
+    """Return a rename dict mapping raw column names → canonical names."""
+    rename: dict[str, str] = {}
+    for raw in raw_cols:
+        norm = _normalise(raw)
+        for canonical, patterns in _PATTERNS:
+            if any(p in norm for p in patterns):
+                rename[raw] = canonical
+                break
+    return rename
 
 
 def _build_audio_index(ds_dir: Path) -> dict[str, Path]:
@@ -39,11 +60,17 @@ def load_annotations(dataset_key: str, raw_dir: Path = RAW_DIR) -> pd.DataFrame:
 
     df = pd.read_csv(ann_path)
     df.columns = df.columns.str.strip()
-    df = df.rename(columns=_RENAME)
+
+    rename = _map_columns(list(df.columns))
+    df = df.rename(columns=rename)
     df["dataset"] = dataset_key
 
-    if "filename" not in df.columns:
-        log.error("%s: 'filename' column missing. Available columns: %s", dataset_key, list(df.columns))
+    missing = _REQUIRED - set(df.columns)
+    if missing:
+        log.error(
+            "%s: could not map columns %s. Raw headers: %s",
+            dataset_key, sorted(missing), list(df.columns),
+        )
         return pd.DataFrame()
 
     audio_index = _build_audio_index(ds_dir)
