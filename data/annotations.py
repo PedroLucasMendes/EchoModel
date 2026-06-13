@@ -12,6 +12,8 @@ from configs.config import RAW_DIR, DATASETS_TO_DOWNLOAD
 log = logging.getLogger(__name__)
 
 _RENAME = {
+    # Zenodo Bioacoustics datasets use title-case headers
+    "Filename": "filename",
     "Begin Time (s)": "start_time",
     "End Time (s)": "end_time",
     "Low Freq (Hz)": "low_freq",
@@ -36,8 +38,13 @@ def load_annotations(dataset_key: str, raw_dir: Path = RAW_DIR) -> pd.DataFrame:
         return pd.DataFrame()
 
     df = pd.read_csv(ann_path)
+    df.columns = df.columns.str.strip()
     df = df.rename(columns=_RENAME)
     df["dataset"] = dataset_key
+
+    if "filename" not in df.columns:
+        log.error("%s: 'filename' column missing. Available columns: %s", dataset_key, list(df.columns))
+        return pd.DataFrame()
 
     audio_index = _build_audio_index(ds_dir)
     df["audio_path"] = df["filename"].map(lambda f: str(audio_index.get(f, "")))
