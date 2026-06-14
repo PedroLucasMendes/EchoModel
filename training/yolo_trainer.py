@@ -24,6 +24,7 @@ def train_yolo_variants(
     img_size: tuple[int, int] = (IMG_WIDTH, IMG_HEIGHT),
     runs_dir: Path = YOLO_RUNS_DIR,
     device: str = "0,1",   # both H200 GPUs
+    resume: bool = False,
 ) -> pd.DataFrame:
     results_summary = []
 
@@ -31,17 +32,23 @@ def train_yolo_variants(
         run_name = variant.replace(".pt", "")
         log.info("=== Training %s ===", run_name)
 
-        model = YOLO(variant)
-        model.train(
-            data=str(data_yaml_path),
-            epochs=epochs,
-            imgsz=max(img_size),
-            rect=True,
-            project=str(runs_dir),
-            name=run_name,
-            exist_ok=True,
-            device=device,
-        )
+        last_ckpt = runs_dir / run_name / "weights" / "last.pt"
+        if resume and last_ckpt.exists():
+            log.info("Resuming from %s", last_ckpt)
+            model = YOLO(str(last_ckpt))
+            model.train(resume=True)
+        else:
+            model = YOLO(variant)
+            model.train(
+                data=str(data_yaml_path),
+                epochs=epochs,
+                imgsz=max(img_size),
+                rect=True,
+                project=str(runs_dir),
+                name=run_name,
+                exist_ok=True,
+                device=device,
+            )
 
         metrics = model.val(data=str(data_yaml_path), split="test")
         results_summary.append({

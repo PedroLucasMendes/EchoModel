@@ -106,6 +106,7 @@ def stage_train_yolo(args) -> None:
     results_df = train_yolo_variants(
         data_yaml_path=data_yaml,
         device=args.device,
+        resume=args.resume,
     )
     results_df.to_csv(YOLO_RUNS_DIR / "yolo_screening.csv", index=False)
 
@@ -290,6 +291,8 @@ def parse_args():
                         help="CUDA device(s) for YOLO training (e.g. '0,1')")
     parser.add_argument("--checkpoint", type=str, default=None,
                         help="Path to model checkpoint for evaluation")
+    parser.add_argument("--resume", action="store_true",
+                        help="Resume YOLO training from last checkpoint")
     parser.add_argument("--xc_metadata", type=str, default=None,
                         help="CSV with columns [audio_path, target] for pseudo-labelling")
     parser.add_argument("--no_compile", action="store_true",

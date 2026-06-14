@@ -6,6 +6,7 @@ stage the mel filterbank tensor is returned directly.
 """
 import io
 import logging
+import warnings
 from pathlib import Path
 from typing import Optional
 
@@ -35,8 +36,23 @@ def load_audio(
     duration: Optional[float] = None,
     mono: bool = True,
 ) -> np.ndarray:
-    y, _ = librosa.load(str(path), sr=sr, mono=mono, offset=offset, duration=duration)
-    return y
+    try:
+        data, native_sr = sf.read(str(path), always_2d=False)
+        if data.ndim > 1:
+            data = data.mean(axis=1)
+        if native_sr != sr:
+            data = librosa.resample(data.astype(np.float32), orig_sr=native_sr, target_sr=sr)
+        start = int(offset * sr)
+        if duration is not None:
+            data = data[start: start + int(duration * sr)]
+        else:
+            data = data[start:]
+        return data.astype(np.float32)
+    except Exception:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            y, _ = librosa.load(str(path), sr=sr, mono=mono, offset=offset, duration=duration)
+        return y
 
 
 def pad_to_length(y: np.ndarray, target_samples: int) -> np.ndarray:

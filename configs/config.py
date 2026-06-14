@@ -60,7 +60,7 @@ DATASETS_TO_DOWNLOAD = list(BBOX_DATASETS.keys())
 SR              = 32000
 N_FFT           = 1024
 HOP_LENGTH      = 320       # ~10 ms per frame at 32 kHz
-N_MELS          = 256
+N_MELS          = 128
 FREQ_MAX        = SR // 2   # 16 000 Hz
 
 TILE_DURATION   = 10.0      # seconds per YOLO tile
