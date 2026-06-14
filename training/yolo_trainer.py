@@ -7,6 +7,7 @@ simultaneously, one variant per GPU, using multiprocessing.
 """
 import logging
 import multiprocessing as mp
+from multiprocessing import get_context
 from pathlib import Path
 
 import pandas as pd
@@ -78,12 +79,13 @@ def train_yolo_variants(
 
     for round_idx, round_variants in enumerate(rounds):
         log.info("=== Round %d/%d: %s ===", round_idx + 1, len(rounds), round_variants)
-        result_queue: mp.Queue = mp.Queue()
+        ctx = get_context("spawn")
+        result_queue = ctx.Queue()
         processes = []
 
         for gpu_id, variant in zip(gpus, round_variants):
             log.info("  Launching %s on GPU %d", variant, gpu_id)
-            p = mp.Process(
+            p = ctx.Process(
                 target=_train_single,
                 args=(
                     variant,
