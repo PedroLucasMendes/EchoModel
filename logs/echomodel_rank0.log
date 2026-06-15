@@ -1,0 +1,330 @@
+2026-06-13 16:03:06 [INFO] __main__: === EchoModel pipeline | stage=download ===
+2026-06-13 16:03:12 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 16:03:12 [INFO] __main__: Downloading datasets: ['western_us', 'northeastern_us', 'amazon_basin', 'hawaii', 'coffee_farms', 'sierra_nevada_south']
+2026-06-13 16:03:12 [INFO] data.download: === Fully-annotated soundscapes - Western United States (Zenodo 7050014) ===
+2026-06-13 16:09:00 [INFO] data.download: Extracting soundscape_data.zip …
+2026-06-13 16:09:09 [INFO] data.download: Extracted soundscape_data.zip
+2026-06-13 16:09:09 [INFO] data.download: === Fully-annotated soundscapes - Northeastern United States (Zenodo 7079380) ===
+2026-06-13 16:59:20 [INFO] data.download: Extracting soundscape_data.zip …
+2026-06-13 17:00:34 [INFO] data.download: Extracted soundscape_data.zip
+2026-06-13 17:00:34 [INFO] data.download: === Fully-annotated soundscapes - Southwestern Amazon Basin (Zenodo 7079124) ===
+2026-06-13 17:04:42 [INFO] data.download: Extracting soundscape_data.zip …
+2026-06-13 17:04:44 [INFO] data.download: Extracted soundscape_data.zip
+2026-06-13 17:04:44 [INFO] data.download: === Fully-annotated soundscapes - Island of Hawai'i (Zenodo 7078499) ===
+2026-06-13 17:16:07 [INFO] data.download: Extracting soundscape_data.zip …
+2026-06-13 17:16:14 [INFO] data.download: Extracted soundscape_data.zip
+2026-06-13 17:16:14 [INFO] data.download: === Fully-annotated soundscapes - Neotropical Coffee Farms (CO/CR) (Zenodo 7525349) ===
+2026-06-13 17:23:50 [INFO] data.download: Extracting soundscape_data.zip …
+2026-06-13 17:23:56 [INFO] data.download: Extracted soundscape_data.zip
+2026-06-13 17:23:56 [INFO] data.download: === Fully-annotated soundscapes - Southern Sierra Nevada (Zenodo 7525805) ===
+2026-06-13 17:26:23 [INFO] data.download: Extracting soundscape_data.zip …
+2026-06-13 17:26:28 [INFO] data.download: Extracted soundscape_data.zip
+2026-06-13 17:26:28 [INFO] __main__: === Stage 'download' finished ===
+2026-06-13 17:26:55 [INFO] __main__: === EchoModel pipeline | stage=build_yolo ===
+2026-06-13 17:27:00 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:31:44 [INFO] __main__: === EchoModel pipeline | stage=build_yolo ===
+2026-06-13 17:31:49 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:31:49 [INFO] data.annotations: western_us: 20147 bounding boxes loaded
+2026-06-13 17:31:49 [INFO] data.annotations: northeastern_us: 53503 bounding boxes loaded
+2026-06-13 17:31:49 [INFO] data.annotations: amazon_basin: 16482 bounding boxes loaded
+2026-06-13 17:31:49 [INFO] data.annotations: hawaii: 59583 bounding boxes loaded
+2026-06-13 17:31:49 [INFO] data.annotations: coffee_farms: 7338 bounding boxes loaded
+2026-06-13 17:31:49 [INFO] data.annotations: sierra_nevada_south: 10976 bounding boxes loaded
+2026-06-13 17:31:49 [INFO] data.annotations: Total bounding boxes: 168029 | unique species: 355
+2026-06-13 17:33:03 [INFO] __main__: === EchoModel pipeline | stage=build_yolo ===
+2026-06-13 17:33:09 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:33:09 [INFO] data.annotations: western_us: 20147 bounding boxes loaded
+2026-06-13 17:33:09 [INFO] data.annotations: northeastern_us: 53503 bounding boxes loaded
+2026-06-13 17:33:09 [INFO] data.annotations: amazon_basin: 16482 bounding boxes loaded
+2026-06-13 17:33:09 [INFO] data.annotations: hawaii: 59583 bounding boxes loaded
+2026-06-13 17:33:09 [INFO] data.annotations: coffee_farms: 7338 bounding boxes loaded
+2026-06-13 17:33:09 [INFO] data.annotations: sierra_nevada_south: 10976 bounding boxes loaded
+2026-06-13 17:33:09 [INFO] data.annotations: Total bounding boxes: 168029 | unique species: 355
+2026-06-13 17:33:58 [INFO] __main__: === EchoModel pipeline | stage=build_yolo ===
+2026-06-13 17:34:03 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:34:03 [INFO] data.annotations: western_us: 20147 bounding boxes loaded
+2026-06-13 17:34:03 [INFO] data.annotations: northeastern_us: 53503 bounding boxes loaded
+2026-06-13 17:34:03 [INFO] data.annotations: amazon_basin: 16482 bounding boxes loaded
+2026-06-13 17:34:03 [INFO] data.annotations: hawaii: 59583 bounding boxes loaded
+2026-06-13 17:34:03 [INFO] data.annotations: coffee_farms: 7338 bounding boxes loaded
+2026-06-13 17:34:03 [INFO] data.annotations: sierra_nevada_south: 10976 bounding boxes loaded
+2026-06-13 17:34:03 [INFO] data.annotations: Total bounding boxes: 168029 | unique species: 355
+2026-06-13 17:35:07 [INFO] __main__: === EchoModel pipeline | stage=build_yolo ===
+2026-06-13 17:35:12 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:35:12 [INFO] data.annotations: western_us: 20147 bounding boxes loaded
+2026-06-13 17:35:12 [INFO] data.annotations: northeastern_us: 53503 bounding boxes loaded
+2026-06-13 17:35:12 [INFO] data.annotations: amazon_basin: 16482 bounding boxes loaded
+2026-06-13 17:35:12 [INFO] data.annotations: hawaii: 59583 bounding boxes loaded
+2026-06-13 17:35:12 [INFO] data.annotations: coffee_farms: 7338 bounding boxes loaded
+2026-06-13 17:35:12 [INFO] data.annotations: sierra_nevada_south: 10976 bounding boxes loaded
+2026-06-13 17:35:12 [INFO] data.annotations: Total bounding boxes: 168029 | unique species: 355
+2026-06-13 17:37:09 [INFO] __main__: === EchoModel pipeline | stage=build_yolo ===
+2026-06-13 17:37:14 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:37:14 [INFO] data.annotations: western_us: 20147 bounding boxes loaded
+2026-06-13 17:37:14 [INFO] data.annotations: northeastern_us: 53503 bounding boxes loaded
+2026-06-13 17:37:14 [INFO] data.annotations: amazon_basin: 16482 bounding boxes loaded
+2026-06-13 17:37:14 [INFO] data.annotations: hawaii: 59583 bounding boxes loaded
+2026-06-13 17:37:14 [INFO] data.annotations: coffee_farms: 7338 bounding boxes loaded
+2026-06-13 17:37:14 [INFO] data.annotations: sierra_nevada_south: 10976 bounding boxes loaded
+2026-06-13 17:37:14 [INFO] data.annotations: Total bounding boxes: 168029 | unique species: 355
+2026-06-13 17:38:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_001_S01_20190914_043000.flac: 
+2026-06-13 17:38:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_002_S01_20190914_043000.flac: 
+2026-06-13 17:38:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_006_S01_20190914_160000.flac: 
+2026-06-13 17:38:19 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_013_S01_20191003_160000.flac: 
+2026-06-13 17:38:19 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_014_S01_20191105_160000.flac: 
+2026-06-13 17:38:19 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_015_S01_20191110_043000.flac: 
+2026-06-13 17:38:48 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_020_S02_20190904_053000.flac: 
+2026-06-13 17:38:48 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_021_S02_20190904_063001.flac: 
+2026-06-13 17:38:49 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_024_S02_20190904_170000.flac: 
+2026-06-13 17:38:49 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_025_S02_20190923_053000.flac: 
+2026-06-13 17:38:49 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_026_S02_20190923_160000.flac: 
+2026-06-13 17:38:51 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_028_S02_20191004_043000.flac: 
+2026-06-13 17:38:55 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_031_S02_20191004_170001.flac: 
+2026-06-13 17:38:55 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/coffee_farms/NES_032_S02_20191009_063001.flac: 
+2026-06-13 17:38:58 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_001_S01_20161121_150000.flac: 
+2026-06-13 17:39:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_005_S01_20161121_154000.flac: 
+2026-06-13 17:39:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_062_S01_20161124_104000.flac: 
+2026-06-13 17:39:38 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_082_S01_20161125_151000.flac: 
+2026-06-13 17:39:43 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_103_S01_20161126_104000.flac: 
+2026-06-13 17:39:43 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_104_S01_20161126_150000.flac: 
+2026-06-13 17:39:43 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_105_S01_20161126_151000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_197_S01_20161201_063000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_198_S01_20161201_064000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_199_S01_20161201_065000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_200_S01_20161201_071000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_201_S01_20161201_072000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_202_S01_20161201_073000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_203_S01_20161201_074000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_204_S01_20161201_075000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_205_S01_20161201_080000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_206_S01_20161201_083000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_207_S01_20161201_084000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_210_S01_20161201_091000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_211_S01_20161201_092000.flac: 
+2026-06-13 17:40:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_212_S01_20161201_093000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_214_S01_20161201_095000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_215_S01_20161201_100000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_216_S01_20161201_101000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_217_S01_20161201_102000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_213_S01_20161201_094000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_219_S01_20161201_104000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_218_S01_20161201_103000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_220_S01_20161201_105000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_221_S01_20161201_150000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_223_S01_20161201_152000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_224_S01_20161201_153000.flac: 
+2026-06-13 17:40:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_222_S01_20161201_151000.flac: 
+2026-06-13 17:40:13 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_252_S01_20161202_102000.flac: 
+2026-06-13 17:40:13 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_253_S01_20161202_103000.flac: 
+2026-06-13 17:40:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_254_S01_20161202_104000.flac: 
+2026-06-13 17:40:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_255_S01_20161202_105000.flac: 
+2026-06-13 17:40:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_257_S01_20161202_151000.flac: 
+2026-06-13 17:40:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_266_S01_20161203_070000.flac: 
+2026-06-13 17:40:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_263_S01_20161203_063000.flac: 
+2026-06-13 17:40:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_267_S01_20161203_071000.flac: 
+2026-06-13 17:40:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_269_S01_20161203_073000.flac: 
+2026-06-13 17:40:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_268_S01_20161203_072000.flac: 
+2026-06-13 17:40:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_264_S01_20161203_064000.flac: 
+2026-06-13 17:40:17 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_278_S01_20161203_092000.flac: 
+2026-06-13 17:40:17 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_279_S01_20161203_093000.flac: 
+2026-06-13 17:40:18 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_283_S01_20161203_101000.flac: 
+2026-06-13 17:40:26 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_320_S01_20161204_151000.flac: 
+2026-06-13 17:40:27 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_326_S01_20161205_063000.flac: 
+2026-06-13 17:40:27 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_325_S01_20161205_062000.flac: 
+2026-06-13 17:40:27 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_328_S01_20161205_070000.flac: 
+2026-06-13 17:40:27 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_329_S01_20161205_071000.flac: 
+2026-06-13 17:40:27 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_330_S01_20161205_072000.flac: 
+2026-06-13 17:40:27 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_331_S01_20161205_073000.flac: 
+2026-06-13 17:40:28 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_332_S01_20161205_074000.flac: 
+2026-06-13 17:40:28 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_334_S01_20161205_080000.flac: 
+2026-06-13 17:40:28 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_336_S01_20161205_082000.flac: 
+2026-06-13 17:40:28 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_337_S01_20161205_083000.flac: 
+2026-06-13 17:40:28 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_338_S01_20161205_084000.flac: 
+2026-06-13 17:40:29 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_341_S01_20161205_092000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_354_S01_20170302_150000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_356_S01_20170302_152000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_355_S01_20170302_151000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_357_S01_20170302_154000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_361_S01_20170302_162000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_360_S01_20170302_161000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_362_S01_20170302_163000.flac: 
+2026-06-13 17:40:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_363_S01_20170302_164000.flac: 
+2026-06-13 17:40:33 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_372_S01_20170303_071000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_386_S01_20170303_102000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_384_S01_20170303_100000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_389_S01_20170303_105000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_385_S01_20170303_101000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_387_S01_20170303_103000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_388_S01_20170303_104000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_393_S01_20170303_153000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_394_S01_20170303_154000.flac: 
+2026-06-13 17:40:37 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_395_S01_20170303_155000.flac: 
+2026-06-13 17:40:42 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_418_S03_20180522_214800.flac: 
+2026-06-13 17:40:46 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_477_S04_20190410_205000.flac: 
+2026-06-13 17:40:46 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_482_S04_20190410_223000.flac: 
+2026-06-13 17:40:46 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_479_S04_20190410_211000.flac: 
+2026-06-13 17:40:46 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_487_S04_20190411_194000.flac: 
+2026-06-13 17:40:47 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_494_S04_20190418_203000.flac: 
+2026-06-13 17:40:57 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_524_S02_20210327_140000.flac: 
+2026-06-13 17:40:57 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_525_S02_20210327_142000.flac: 
+2026-06-13 17:40:57 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_526_S02_20210327_150000.flac: 
+2026-06-13 17:40:57 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_528_S02_20210327_160000.flac: 
+2026-06-13 17:40:57 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_527_S02_20210327_152000.flac: 
+2026-06-13 17:40:58 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_530_S02_20210327_164000.flac: 
+2026-06-13 17:40:58 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_531_S02_20210327_170000.flac: 
+2026-06-13 17:40:58 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_534_S02_20210327_184000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_544_S02_20210328_074000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_546_S02_20210328_084000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_545_S02_20210328_080000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_547_S02_20210328_090000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_548_S02_20210328_092000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_549_S02_20210328_094000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_551_S02_20210328_102000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_550_S02_20210328_100000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_553_S02_20210328_124000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_554_S02_20210328_130000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_552_S02_20210328_122000.flac: 
+2026-06-13 17:41:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_555_S02_20210328_140000.flac: 
+2026-06-13 17:41:01 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_557_S02_20210328_144000.flac: 
+2026-06-13 17:41:01 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_558_S02_20210328_150000.flac: 
+2026-06-13 17:41:01 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_556_S02_20210328_142000.flac: 
+2026-06-13 17:41:01 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_559_S02_20210328_152000.flac: 
+2026-06-13 17:41:01 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_564_S02_20210328_170000.flac: 
+2026-06-13 17:41:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_569_S02_20210329_060000.flac: 
+2026-06-13 17:41:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_570_S02_20210329_062000.flac: 
+2026-06-13 17:41:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_571_S02_20210329_064000.flac: 
+2026-06-13 17:41:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_575_S02_20210329_082000.flac: 
+2026-06-13 17:41:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_574_S02_20210329_080000.flac: 
+2026-06-13 17:41:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_578_S02_20210329_094000.flac: 
+2026-06-13 17:41:03 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_579_S02_20210329_100000.flac: 
+2026-06-13 17:41:03 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_581_S02_20210329_104000.flac: 
+2026-06-13 17:41:04 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_588_S02_20210329_130000.flac: 
+2026-06-13 17:41:04 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_586_S02_20210329_122000.flac: 
+2026-06-13 17:41:05 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_589_S02_20210329_132000.flac: 
+2026-06-13 17:41:05 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_594_S02_20210329_150000.flac: 
+2026-06-13 17:41:05 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_595_S02_20210329_152000.flac: 
+2026-06-13 17:41:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_596_S02_20210329_154000.flac: 
+2026-06-13 17:41:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_599_S02_20210329_164000.flac: 
+2026-06-13 17:41:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_598_S02_20210329_162000.flac: 
+2026-06-13 17:41:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_600_S02_20210329_170000.flac: 
+2026-06-13 17:41:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_605_S02_20210329_184000.flac: 
+2026-06-13 17:41:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_608_S02_20210330_062000.flac: 
+2026-06-13 17:41:08 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_615_S02_20220322_073800.flac: 
+2026-06-13 17:41:08 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_617_S02_20220322_075900.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_619_S02_20220322_084800.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_620_S02_20220322_094000.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_621_S02_20220322_094900.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_623_S02_20220323_072800.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_625_S02_20220323_083000.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_626_S02_20220323_094800.flac: 
+2026-06-13 17:41:09 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_627_S02_20220323_100400.flac: 
+2026-06-13 17:41:10 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/hawaii/UHH_629_S02_20220323_105000.flac: 
+2026-06-13 17:41:12 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_004_20170225_050004Z.flac: 
+2026-06-13 17:41:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_012_20170225_170013Z.flac: 
+2026-06-13 17:41:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_013_20170225_180022Z.flac: 
+2026-06-13 17:41:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_016_20170225_210016Z.flac: 
+2026-06-13 17:41:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_014_20170225_190012Z.flac: 
+2026-06-13 17:41:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_015_20170225_200022Z.flac: 
+2026-06-13 17:41:14 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_017_20170225_220016Z.flac: 
+2026-06-13 17:41:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_007_20170225_110009Z.flac: 
+2026-06-13 17:41:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_024_20170304_140008Z.flac: 
+2026-06-13 17:41:49 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_028_20170304_180018Z.flac: 
+2026-06-13 17:41:49 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_029_20170304_190011Z.flac: 
+2026-06-13 17:41:51 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_032_20170311_000000Z.flac: 
+2026-06-13 17:41:51 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_033_20170311_010000Z.flac: 
+2026-06-13 17:41:52 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_035_20170311_040002Z.flac: 
+2026-06-13 17:41:52 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_034_20170311_030002Z.flac: 
+2026-06-13 17:41:52 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_036_20170311_080005Z.flac: 
+2026-06-13 17:42:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_044_20170311_170018Z.flac: 
+2026-06-13 17:42:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_046_20170311_200014Z.flac: 
+2026-06-13 17:42:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_049_20170318_000000Z.flac: 
+2026-06-13 17:42:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_050_20170325_000000Z.flac: 
+2026-06-13 17:42:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_047_20170311_210017Z.flac: 
+2026-06-13 17:42:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_048_20170311_220022Z.flac: 
+2026-06-13 17:42:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_053_20170325_040002Z.flac: 
+2026-06-13 17:42:04 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_055_20170325_060004Z.flac: 
+2026-06-13 17:42:04 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_056_20170325_070004Z.flac: 
+2026-06-13 17:42:31 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_062_20170325_160010Z.flac: 
+2026-06-13 17:42:33 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_064_20170325_190014Z.flac: 
+2026-06-13 17:42:42 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_070_20170401_100007Z.flac: 
+2026-06-13 17:42:53 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_076_20170401_180013Z.flac: 
+2026-06-13 17:43:17 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_084_20170408_110007Z.flac: 
+2026-06-13 17:43:18 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_086_20170408_130009Z.flac: 
+2026-06-13 17:43:20 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_088_20170408_150010Z.flac: 
+2026-06-13 17:43:23 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_090_20170408_170014Z.flac: 
+2026-06-13 17:43:34 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_096_20170415_000000Z.flac: 
+2026-06-13 17:43:34 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_097_20170415_021433Z.flac: 
+2026-06-13 17:43:34 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_098_20170415_084143Z.flac: 
+2026-06-13 17:43:47 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_105_20170429_000000Z.flac: 
+2026-06-13 17:44:26 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_119_20170506_000000Z.flac: 
+2026-06-13 17:44:35 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_125_20170506_090007Z.flac: 
+2026-06-13 17:44:38 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_127_20170506_110007Z.flac: 
+2026-06-13 17:44:42 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_129_20170506_130009Z.flac: 
+2026-06-13 17:44:55 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_131_20170506_160014Z.flac: 
+2026-06-13 17:44:59 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_133_20170506_190012Z.flac: 
+2026-06-13 17:44:59 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_134_20170506_200014Z.flac: 
+2026-06-13 17:45:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_136_20170506_220017Z.flac: 
+2026-06-13 17:45:00 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_137_20170513_000000Z.flac: 
+2026-06-13 17:45:05 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_145_20170513_100010Z.flac: 
+2026-06-13 17:45:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_146_20170513_110010Z.flac: 
+2026-06-13 17:45:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_144_20170513_090009Z.flac: 
+2026-06-13 17:45:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_147_20170513_120011Z.flac: 
+2026-06-13 17:45:48 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_164_20170603_000000Z.flac: 
+2026-06-13 17:46:17 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_176_20170603_180013Z.flac: 
+2026-06-13 17:46:34 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_181_20170610_000000Z.flac: 
+2026-06-13 17:47:44 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_213_20170701_000000Z.flac: 
+2026-06-13 17:48:06 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_216_20170701_090006Z.flac: 
+2026-06-13 17:48:07 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_219_20170701_120015Z.flac: 
+2026-06-13 17:48:15 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_226_20170701_190013Z.flac: 
+2026-06-13 17:48:17 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_230_20170708_000000Z.flac: 
+2026-06-13 17:48:50 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_239_20170708_150010Z.flac: 
+2026-06-13 17:48:57 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_245_20170708_210014Z.flac: 
+2026-06-13 17:49:02 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_249_20170722_104744Z.flac: 
+2026-06-13 17:50:10 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_275_20170819_200021Z.flac: 
+2026-06-13 17:50:12 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_277_20170826_000000Z.flac: 
+2026-06-13 17:50:32 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/northeastern_us/SSW_284_20170826_185026Z.flac: 
+2026-06-13 17:51:40 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/western_us/SNE_006_20180509_170000.flac: 
+2026-06-13 17:51:42 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/western_us/SNE_014_20180510_170000.flac: 
+2026-06-13 17:51:42 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/western_us/SNE_008_20180509_190001.flac: 
+2026-06-13 17:52:17 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/western_us/SNE_023_20180523_170000.flac: 
+2026-06-13 17:52:26 [WARNING] data.yolo_builder: Could not load echomodel_project/01_raw_bbox_datasets/western_us/SNE_032_20180529_170000.flac: 
+2026-06-13 17:52:53 [INFO] data.yolo_builder: Total tiles generated: 155135
+2026-06-13 17:53:00 [INFO] data.yolo_builder: val: 23270 images
+2026-06-13 17:53:03 [INFO] data.yolo_builder: test: 15513 images
+2026-06-13 17:53:26 [INFO] data.yolo_builder: train: 116352 images
+2026-06-13 17:53:26 [INFO] data.yolo_builder: data.yaml written to echomodel_project/02_yolo_dataset/data.yaml
+2026-06-13 17:53:27 [INFO] __main__: YOLO dataset ready at echomodel_project/02_yolo_dataset
+2026-06-13 17:53:27 [INFO] __main__: === Stage 'build_yolo' finished ===
+2026-06-13 17:53:46 [INFO] __main__: === EchoModel pipeline | stage=train_yolo ===
+2026-06-13 17:53:51 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-13 17:53:57 [WARNING] matplotlib.font_manager: Matplotlib is building the font cache; this may take a moment.
+2026-06-13 17:53:59 [INFO] matplotlib.font_manager: Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported
+2026-06-13 17:53:59 [INFO] matplotlib.font_manager: generated new fontManager
+2026-06-13 17:54:00 [INFO] training.yolo_trainer: === Training yolov8n ===
+2026-06-13 21:17:22 [INFO] training.yolo_trainer: === Training yolov8s ===
+2026-06-14 00:02:17 [INFO] __main__: === EchoModel pipeline | stage=train_yolo ===
+2026-06-14 00:02:17 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-14 00:02:18 [INFO] training.yolo_trainer: === Training yolov8n ===
+2026-06-14 12:15:52 [INFO] __main__: === EchoModel pipeline | stage=train_yolo ===
+2026-06-14 12:15:58 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-14 12:15:59 [INFO] training.yolo_trainer: === Training yolov8n ===
+2026-06-14 14:58:02 [INFO] __main__: === EchoModel pipeline | stage=train_yolo ===
+2026-06-14 14:58:08 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-14 14:58:09 [INFO] training.yolo_trainer: === Round 1/2: ['yolov8n.pt', 'yolov8s.pt'] ===
+2026-06-14 14:58:09 [INFO] training.yolo_trainer:   Launching yolov8n.pt on GPU 0
+2026-06-14 14:58:09 [INFO] training.yolo_trainer:   Launching yolov8s.pt on GPU 1
+2026-06-14 15:00:59 [INFO] __main__: === EchoModel pipeline | stage=train_yolo ===
+2026-06-14 15:01:04 [INFO] __main__: PyTorch 2.12.0+cu130 | CUDA available: True | GPUs: 2
+2026-06-14 15:01:06 [INFO] training.yolo_trainer: === Round 1/2: ['yolov8n.pt', 'yolov8s.pt'] ===
+2026-06-14 15:01:06 [INFO] training.yolo_trainer:   Launching yolov8n.pt on GPU 0
+2026-06-14 15:01:06 [INFO] training.yolo_trainer:   Launching yolov8s.pt on GPU 1
+2026-06-14 18:22:20 [INFO] training.yolo_trainer: === Round 2/2: ['yolo11n.pt', 'yolo11s.pt'] ===
+2026-06-14 18:22:20 [INFO] training.yolo_trainer:   Launching yolo11n.pt on GPU 0
+2026-06-14 18:22:20 [INFO] training.yolo_trainer:   Launching yolo11s.pt on GPU 1
+2026-06-14 22:18:07 [INFO] training.yolo_trainer: 
+  model    mAP50  mAP50-95  precision   recall
+yolov8s 0.508570  0.218530   0.588991 0.455737
+yolo11s 0.511430  0.215474   0.582047 0.462239
+yolo11n 0.431657  0.174294   0.517663 0.400748
+yolov8n 0.430623  0.170095   0.513636 0.406924
+2026-06-14 22:18:07 [INFO] training.yolo_trainer: Best YOLO: yolov8s  weights: echomodel_project/03_yolo_runs/yolov8s/weights/best.pt

@@ -1,0 +1,9 @@
+/venv
+
+configs/__pycache__/
+data/__pycache__/
+echomodel_project/
+models/__pycache__/
+nohup.out
+training/__pycache__/
+utils/__pycache__/
