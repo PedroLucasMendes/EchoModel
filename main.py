@@ -122,6 +122,8 @@ def stage_pseudo_label(args) -> None:
     import pandas as pd
     from ultralytics import YOLO
     from training.pseudo_labeler import build_pseudo_label_table
+    from data.annotations import load_all_annotations, load_species_map
+    from data.xeno_canto import iter_species_batches, delete_batch
 
     screening_csv = YOLO_RUNS_DIR / "yolo_screening.csv"
     if not screening_csv.exists():
@@ -136,13 +138,42 @@ def stage_pseudo_label(args) -> None:
         weights = YOLO_RUNS_DIR / best_name / "weights" / "best.pt"
     yolo_model = YOLO(str(weights))
 
-    if not args.xc_metadata:
-        log.warning("No --xc_metadata provided; skipping pseudo-labelling.")
+    # --- Path A: user-supplied CSV (audio already on disk) -------------------
+    if args.xc_metadata:
+        xc_meta = pd.read_csv(args.xc_metadata)
+        pairs   = list(zip(xc_meta["audio_path"], xc_meta["target"]))
+        build_pseudo_label_table(pairs, "xeno_canto", yolo_model)
         return
 
-    xc_meta = pd.read_csv(args.xc_metadata)
-    pairs   = list(zip(xc_meta["audio_path"], xc_meta["target"]))
-    build_pseudo_label_table(pairs, "xeno_canto", yolo_model)
+    # --- Path B: download Xeno-Canto in batches (Perch-style) ----------------
+    datasets = args.datasets if args.datasets else DATASETS_TO_DOWNLOAD
+    bbox_df  = load_all_annotations(datasets=datasets, raw_dir=RAW_DIR)
+    species_map = load_species_map(datasets=datasets, raw_dir=RAW_DIR)
+
+    # Only query species that actually appear in our ground-truth labels, so the
+    # pseudo-labels stay within the EchoModel class set.
+    gt_labels = set(bbox_df["label"].unique())
+    species_to_name = {
+        lab: species_map.get(lab, "")
+        for lab in gt_labels
+        if species_map.get(lab)
+    }
+    missing = gt_labels - set(species_to_name)
+    if missing:
+        log.warning("No scientific name for %d labels (skipped): %s",
+                    len(missing), sorted(missing))
+    log.info("Pseudo-labelling %d species from Xeno-Canto", len(species_to_name))
+
+    total = 0
+    for batch in iter_species_batches(species_to_name):
+        if not batch:
+            continue
+        df = build_pseudo_label_table(batch, "xeno_canto", yolo_model)
+        total = len(df)
+        # Free disk before fetching the next batch — keeps usage bounded.
+        delete_batch(batch)
+
+    log.info("Xeno-Canto pseudo-labelling done. Total pseudo-label rows: %d", total)
 
 
 # ---------------------------------------------------------------------------

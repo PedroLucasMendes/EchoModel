@@ -78,6 +78,47 @@ def load_annotations(dataset_key: str, raw_dir: Path = RAW_DIR) -> pd.DataFrame:
     return df
 
 
+def load_species_map(
+    datasets: list[str] = DATASETS_TO_DOWNLOAD,
+    raw_dir: Path = RAW_DIR,
+) -> dict[str, str]:
+    """
+    Build a mapping {label -> scientific name} from each dataset's species.csv.
+
+    The annotation `label` is usually an eBird code (e.g. "amerob"); querying
+    Xeno-Canto needs the scientific name (e.g. "Turdus migratorius"). The
+    species.csv shipped with each Zenodo record holds that correspondence.
+    Column names vary, so we match them fuzzily.
+    """
+    code_keys = ["ebird code", "ebird", "code", "species code", "label"]
+    sci_keys  = ["scientific name", "scientific", "sci name", "latin", "species"]
+
+    mapping: dict[str, str] = {}
+    for key in datasets:
+        sp_path = Path(raw_dir) / key / "species.csv"
+        if not sp_path.exists():
+            log.warning("[skip] %s not found — no species map for %s", sp_path, key)
+            continue
+        df = pd.read_csv(sp_path)
+        df.columns = df.columns.str.strip()
+        norm = {c: _normalise(c) for c in df.columns}
+
+        code_col = next((c for c, n in norm.items() if any(k in n for k in code_keys)), None)
+        sci_col  = next((c for c, n in norm.items()
+                         if any(k in n for k in sci_keys) and c != code_col), None)
+        if not code_col or not sci_col:
+            log.warning("%s: could not find code/scientific columns in %s",
+                        key, list(df.columns))
+            continue
+
+        for code, sci in zip(df[code_col], df[sci_col]):
+            if pd.notna(code) and pd.notna(sci):
+                mapping.setdefault(str(code).strip(), str(sci).strip())
+
+    log.info("Species map: %d label -> scientific-name entries", len(mapping))
+    return mapping
+
+
 def load_all_annotations(
     datasets: list[str] = DATASETS_TO_DOWNLOAD,
     raw_dir: Path = RAW_DIR,

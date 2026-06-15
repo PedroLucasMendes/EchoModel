@@ -121,6 +121,23 @@ W_F   = 0.5
 YOLO_CONF_THRESHOLD = 0.25
 
 # ---------------------------------------------------------------------------
+# Xeno-Canto download (weakly-labelled audio for pseudo-labelling)
+# ---------------------------------------------------------------------------
+# API v3 endpoint. Requires a free API key from https://xeno-canto.org/account
+# exported as the XENO_CANTO_API_KEY environment variable.
+XC_API_URL          = "https://xeno-canto.org/api/3/recordings"
+XC_DOWNLOAD_DIR     = PROJECT_ROOT / "04_pseudo_labels" / "xc_audio"
+# Process recordings in batches: download a batch, pseudo-label it, delete the
+# audio, then move on — keeps disk usage bounded over the whole dataset.
+XC_BATCH_SIZE       = 50
+# Like Perch v2, do not filter by recording rating (A–E). Set e.g. "A" or "B"
+# to restrict to higher-quality recordings. None = all ratings.
+XC_MIN_QUALITY      = None
+# Safety cap on recordings per species (None = all available, Perch-style).
+XC_MAX_PER_SPECIES  = None
+XC_DOWNLOAD_WORKERS = 8
+
+# ---------------------------------------------------------------------------
 # Download
 # ---------------------------------------------------------------------------
 ZENODO_API   = "https://zenodo.org/api/records/{record_id}"

@@ -12,7 +12,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from sklearn.metrics import average_precision_score
+from sklearn.metrics import average_precision_score, roc_auc_score
 
 log = logging.getLogger(__name__)
 
@@ -29,6 +29,25 @@ def class_mean_average_precision(
             continue
         aps.append(average_precision_score(y_true_c, y_score[:, c]))
     return float(np.mean(aps)) if aps else float("nan")
+
+
+def macro_roc_auc(
+    y_true: np.ndarray,
+    y_score: np.ndarray,
+    num_classes: int,
+) -> float:
+    """Class-mean ROC-AUC — the most stable metric reported for Perch v2.
+
+    Averaged only over classes present in y_true (a class with no positive or
+    no negative samples has an undefined ROC-AUC and is skipped).
+    """
+    aucs = []
+    for c in range(num_classes):
+        y_true_c = (y_true == c).astype(int)
+        if y_true_c.sum() == 0 or y_true_c.sum() == len(y_true_c):
+            continue
+        aucs.append(roc_auc_score(y_true_c, y_score[:, c]))
+    return float(np.mean(aucs)) if aucs else float("nan")
 
 
 def time_freq_iou(
@@ -83,9 +102,10 @@ def evaluate(
     f_pred  = np.concatenate(all_f_pred)
     f_true  = np.concatenate(all_f_true)
 
-    # cmAP
-    probs = np.exp(logits) / np.exp(logits).sum(axis=1, keepdims=True)
-    cmap  = class_mean_average_precision(targets, probs, num_classes)
+    # cmAP and macro ROC-AUC (Perch v2 reports both; ROC-AUC is most stable)
+    probs   = np.exp(logits) / np.exp(logits).sum(axis=1, keepdims=True)
+    cmap    = class_mean_average_precision(targets, probs, num_classes)
+    roc_auc = macro_roc_auc(targets, probs, num_classes)
 
     # top-1 / top-5
     preds = logits.argmax(axis=1)
@@ -107,6 +127,7 @@ def evaluate(
 
     results = {
         "cmAP":     cmap,
+        "ROC_AUC":  roc_auc,
         "top1":     top1,
         "top5":     top5,
         "mean_iou": mean_iou,
