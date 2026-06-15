@@ -128,8 +128,12 @@ def stage_pseudo_label(args) -> None:
         raise FileNotFoundError("Run train_yolo first.")
 
     results_df = pd.read_csv(screening_csv)
-    best_name  = results_df.iloc[0]["model"]
-    weights    = YOLO_RUNS_DIR / best_name / "weights" / "best.pt"
+    best_row   = results_df.iloc[0]
+    best_name  = best_row["model"]
+    # Prefer the weights path recorded during screening; fall back to rebuilding.
+    weights = best_row["weights"] if "weights" in results_df.columns else None
+    if not weights or not Path(weights).exists():
+        weights = YOLO_RUNS_DIR / best_name / "weights" / "best.pt"
     yolo_model = YOLO(str(weights))
 
     if not args.xc_metadata:
