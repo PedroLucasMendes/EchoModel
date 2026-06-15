@@ -129,6 +129,15 @@ def _resolve_xc_species(datasets: list[str]) -> dict[str, str]:
     bbox_df = load_all_annotations(datasets=datasets, raw_dir=RAW_DIR)
     gt_labels = set(bbox_df["label"].unique())
 
+    # Drop placeholder/unidentified labels (e.g. "????", "unknown") that carry
+    # no real species and would only generate empty Xeno-Canto queries.
+    _INVALID = {"????", "unknown", "unk", "nocall", "noise", ""}
+    gt_labels = {
+        lab for lab in gt_labels
+        if isinstance(lab, str) and lab.strip().lower() not in _INVALID
+        and "?" not in lab
+    }
+
     # Base set: Zenodo ground-truth species that have a scientific name.
     species_to_name = {
         lab: species_map[lab] for lab in gt_labels if species_map.get(lab)

@@ -63,6 +63,7 @@ def echomodel_loss(
     target:       torch.Tensor,
     bbox_t_true:  torch.Tensor,
     bbox_f_true:  torch.Tensor,
+    has_box:      torch.Tensor | None = None,
     w_cls: float = W_CLS,
     w_t:   float = W_T,
     w_f:   float = W_F,
@@ -73,14 +74,27 @@ def echomodel_loss(
     target distribution (shape [B, C], e.g. from mixup). The latter follows
     Perch 2.0, which uses soft cross-entropy so every vocalisation in a mixed
     window is recognised regardless of loudness.
+
+    ``has_box`` (shape [B], 1/0) masks the localisation loss: boxless windows
+    (full-window fallback) contribute only to the classification loss, so the
+    localisation head is never trained on a fake box.
     """
     if target.dim() == 1:
         loss_cls = F.cross_entropy(class_logits, target)
     else:
         loss_cls = soft_cross_entropy(class_logits, target)
-    loss_t   = F.smooth_l1_loss(bbox_t_pred, bbox_t_true)
-    loss_f   = F.smooth_l1_loss(bbox_f_pred, bbox_f_true)
-    total    = w_cls * loss_cls + w_t * loss_t + w_f * loss_f
+
+    loss_t_ps = F.smooth_l1_loss(bbox_t_pred, bbox_t_true, reduction="none").mean(dim=1)
+    loss_f_ps = F.smooth_l1_loss(bbox_f_pred, bbox_f_true, reduction="none").mean(dim=1)
+    if has_box is not None:
+        denom = has_box.sum().clamp_min(1.0)
+        loss_t = (loss_t_ps * has_box).sum() / denom
+        loss_f = (loss_f_ps * has_box).sum() / denom
+    else:
+        loss_t = loss_t_ps.mean()
+        loss_f = loss_f_ps.mean()
+
+    total = w_cls * loss_cls + w_t * loss_t + w_f * loss_f
     return total, {
         "cls":  loss_cls.item(),
         "time": loss_t.item(),

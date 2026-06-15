@@ -27,8 +27,8 @@ import pandas as pd
 from ultralytics import YOLO
 
 from configs.config import (
-    ECHO_SR, WIN_DURATION, YOLO_CONF_THRESHOLD,
-    XC_WINDOWS_PER_REC, XC_WINDOW_SELECT,
+    ECHO_SR, WIN_DURATION, ECHO_FMIN, ECHO_FMAX,
+    XC_WINDOWS_PER_REC, XC_WINDOW_SELECT, XC_YOLO_CONF, XC_KEEP_BOXLESS,
     XC_FEATURES_DIR,
 )
 from data.spectrogram import (
@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 
 _INDEX_COLS = [
     "spec_path", "target", "t_min_rel", "t_max_rel",
-    "f_min", "f_max", "yolo_conf", "source",
+    "f_min", "f_max", "yolo_conf", "has_box", "source",
 ]
 
 
@@ -81,14 +81,16 @@ def materialise_batch(
     sr: int = ECHO_SR,
     windows_per_rec: int = XC_WINDOWS_PER_REC,
     window_select: str = XC_WINDOW_SELECT,
-    conf: float = YOLO_CONF_THRESHOLD,
+    conf: float = XC_YOLO_CONF,
+    keep_boxless: bool = XC_KEEP_BOXLESS,
 ) -> list[dict]:
     """
     Process one batch of (audio_path, target) pairs into feature rows.
 
-    Returns a list of index-row dicts (one per materialised window that got a
-    YOLO box). Windows with no detection are skipped — like the Zenodo path,
-    EchoModel trains only on windows that contain a localisable call.
+    Returns a list of index-row dicts (one per materialised window). When YOLO
+    finds no box and ``keep_boxless`` is True, the window is still kept with a
+    full-window fallback box (yolo_conf=0) — the species label is valid for the
+    classifier and the bird is assumed present somewhere in this focal recording.
     """
     features_dir = Path(features_dir)
     features_dir.mkdir(parents=True, exist_ok=True)
@@ -111,8 +113,17 @@ def materialise_batch(
         stem = Path(audio_path).stem
         for wi, (win_start, win_samples) in enumerate(windows):
             box = _best_box_for_window(win_samples, yolo_model, conf, win_duration)
+            has_box = box is not None
             if box is None:
-                continue
+                if not keep_boxless:
+                    continue
+                # Full-window fallback box: whole time span, full freq range.
+                # has_box=0 tells the trainer to skip the bbox loss for this
+                # window so the localisation head isn't taught a fake box.
+                box = {
+                    "t_min": 0.0, "t_max": win_duration,
+                    "f_min": ECHO_FMIN, "f_max": ECHO_FMAX, "yolo_conf": 0.0,
+                }
 
             spec = audio_to_echo_mel(win_samples, sr=sr)
             spec_path = features_dir / f"{stem}_w{wi}.npy"
@@ -129,6 +140,7 @@ def materialise_batch(
                 "f_min":     float(box["f_min"]),
                 "f_max":     float(box["f_max"]),
                 "yolo_conf": float(box["yolo_conf"]),
+                "has_box":   int(has_box),
                 "source":    "xeno_canto",
             })
 

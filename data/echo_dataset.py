@@ -166,10 +166,11 @@ class EchoModelDataset(Dataset):
         bbox_f = torch.tensor([f_min_n, f_max_n], dtype=torch.float32)
 
         return {
-            "spec":   spec_t,
-            "target": torch.tensor(target_idx, dtype=torch.long),
-            "bbox_t": bbox_t,
-            "bbox_f": bbox_f,
+            "spec":    spec_t,
+            "target":  torch.tensor(target_idx, dtype=torch.long),
+            "bbox_t":  bbox_t,
+            "bbox_f":  bbox_f,
+            "has_box": torch.tensor(1.0, dtype=torch.float32),  # Zenodo boxes are real
         }
 
 
@@ -213,11 +214,16 @@ class MaterialisedFeatureDataset(Dataset):
         f_max_n = min(max((float(row["f_max"]) - self.fmin) / f_range, 0.0), 1.0)
         bbox_f = torch.tensor([f_min_n, f_max_n], dtype=torch.float32)
 
+        # has_box=1 when the box is a real YOLO detection; 0 for the full-window
+        # fallback (boxless), so the trainer can skip the localisation loss.
+        has_box = float(row["has_box"]) if "has_box" in self.df.columns else 1.0
+
         return {
-            "spec":   spec_t,
-            "target": torch.tensor(target_idx, dtype=torch.long),
-            "bbox_t": bbox_t,
-            "bbox_f": bbox_f,
+            "spec":    spec_t,
+            "target":  torch.tensor(target_idx, dtype=torch.long),
+            "bbox_t":  bbox_t,
+            "bbox_f":  bbox_f,
+            "has_box": torch.tensor(has_box, dtype=torch.float32),
         }
 
 

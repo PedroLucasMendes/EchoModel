@@ -81,6 +81,9 @@ def run_epoch(
             target       = batch["target"].to(device, non_blocking=True)
             bbox_t_true  = batch["bbox_t"].to(device, non_blocking=True)
             bbox_f_true  = batch["bbox_f"].to(device, non_blocking=True)
+            has_box      = batch.get("has_box")
+            if has_box is not None:
+                has_box = has_box.to(device, non_blocking=True)
 
             # Perch-style mixup on a fraction of training batches. The mixed
             # spectrogram gets a multi-hot soft target; boxes keep the primary.
@@ -96,6 +99,7 @@ def run_epoch(
                 loss, comps = echomodel_loss(
                     class_logits, bbox_t_pred, bbox_f_pred,
                     cls_target, bbox_t_true, bbox_f_true,
+                    has_box=has_box,
                 )
                 loss = loss / accum_steps
 

@@ -181,9 +181,19 @@ XC_PILOT_PER_SPECIES = 5     # recordings per species in pilot mode
 XC_ALL_SPECIES      = False
 
 # Windows materialised per recording (Perch selects 5 s windows from each file).
-XC_WINDOWS_PER_REC  = 1
+# Xeno-Canto recordings are long; sampling several windows per file greatly
+# increases the number of training examples.
+XC_WINDOWS_PER_REC  = 5
 # Window-selection strategy: "random" or "energy_peak" (Perch uses both).
 XC_WINDOW_SELECT    = "energy_peak"
+# YOLO confidence for XC boxes. Xeno-Canto are focal recordings (out of the
+# soundscape domain the YOLO was trained on), so detections are sparser; use a
+# lower threshold than the soundscape default.
+XC_YOLO_CONF        = 0.10
+# Keep a window even when YOLO finds no box: the species label is still valid
+# for the classifier, and we fall back to a full-window box (the bird is
+# assumed present somewhere in this focal recording). Set False to drop them.
+XC_KEEP_BOXLESS     = True
 
 # Directory holding the materialised spectrogram features (.npy). The raw audio
 # is deleted after each batch; only these light tensors persist on disk.
