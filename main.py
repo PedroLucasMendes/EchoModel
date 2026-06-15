@@ -149,10 +149,13 @@ def _resolve_xc_species(datasets: list[str]) -> dict[str, str]:
         species_to_name = {lab: species_to_name[lab] for lab in chosen}
         log.info("[PILOT] %d species: %s", len(species_to_name), chosen)
     elif XC_ALL_SPECIES:
-        # Full Perch-scale catalogue is not enumerated here yet; until that is
-        # wired up we use the full species_map (every label we can name).
-        species_to_name = {k: v for k, v in species_map.items() if v}
-        log.info("[ALL] %d species from species map", len(species_to_name))
+        # Full Perch-scale catalogue: enumerate every avian species on
+        # Xeno-Canto (cached after the first, slow walk). Keyed by scientific
+        # name so the classifier's class set spans the whole archive.
+        from data.xeno_canto import list_all_bird_species
+        from configs.config import XC_SPECIES_CACHE
+        species_to_name = list_all_bird_species(cache_file=XC_SPECIES_CACHE)
+        log.info("[ALL] %d species from Xeno-Canto catalogue", len(species_to_name))
     else:
         log.info("%d Zenodo ground-truth species", len(species_to_name))
 

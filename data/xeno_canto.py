@@ -92,6 +92,85 @@ def _get(query: str, page: int) -> dict:
     return resp.json()
 
 
+def _scientific_name(rec: dict) -> Optional[str]:
+    """Build 'Genus species' from a recording, tolerating field variations."""
+    gen = (rec.get("gen") or "").strip()
+    sp = (rec.get("sp") or "").strip()
+    if gen and sp:
+        return f"{gen} {sp}"
+    return None
+
+
+def list_all_bird_species(
+    cache_file: Path,
+    countries: Optional[list[str]] = None,
+) -> dict[str, str]:
+    """
+    Enumerate the Xeno-Canto avian catalogue as {scientific_name: scientific_name}.
+
+    Walks ``grp:birds`` per country (keeps each query's page count tractable) and
+    collects unique 'Genus species' pairs. The result is cached to ``cache_file``
+    so the (slow) enumeration runs only once; delete the file to refresh.
+
+    NOTE: this is the Perch-scale species list. It is large (~10k species) and
+    the walk itself makes many API calls — it is meant to be run once.
+    """
+    cache_file = Path(cache_file)
+    if cache_file.exists():
+        species = json.loads(cache_file.read_text())
+        log.info("Loaded %d bird species from cache %s", len(species), cache_file)
+        return species
+
+    # A broad spread of countries covers essentially the whole avian catalogue;
+    # querying per country keeps each query under the API's page ceiling.
+    countries = countries or _DEFAULT_XC_COUNTRIES
+
+    found: set[str] = set()
+    for i, country in enumerate(countries):
+        query = f'grp:birds cnt:"{country}"'
+        try:
+            first = _get(query, page=1)
+        except Exception as exc:
+            log.warning("Species enumeration failed for %s: %s", country, exc)
+            continue
+        num_pages = int(first.get("numPages", 1))
+        for rec in first.get("recordings", []):
+            name = _scientific_name(rec)
+            if name:
+                found.add(name)
+        for page in range(2, num_pages + 1):
+            try:
+                data = _get(query, page=page)
+            except Exception as exc:
+                log.warning("  %s page %d failed: %s", country, page, exc)
+                break
+            for rec in data.get("recordings", []):
+                name = _scientific_name(rec)
+                if name:
+                    found.add(name)
+        log.info("[species %d/%d] %s -> %d unique species so far",
+                 i + 1, len(countries), country, len(found))
+
+    species = {name: name for name in sorted(found)}
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
+    cache_file.write_text(json.dumps(species, indent=0))
+    log.info("Enumerated %d bird species -> cached at %s", len(species), cache_file)
+    return species
+
+
+# A representative spread of high-diversity countries. The XC archive's species
+# are overwhelmingly covered by querying these; extend as needed.
+_DEFAULT_XC_COUNTRIES = [
+    "Brazil", "Colombia", "Peru", "Ecuador", "Bolivia", "Venezuela",
+    "United States", "Mexico", "Canada", "Argentina", "Panama", "Costa Rica",
+    "India", "China", "Indonesia", "Australia", "Malaysia", "Thailand",
+    "Kenya", "Tanzania", "South Africa", "Uganda", "Cameroon", "Ethiopia",
+    "Russia", "Germany", "United Kingdom", "Spain", "France", "Sweden",
+    "Papua New Guinea", "Philippines", "Vietnam", "Myanmar", "Madagascar",
+    "Japan", "Turkey", "Iran", "Kazakhstan", "Mongolia",
+]
+
+
 def list_recordings(
     scientific_name: str,
     min_quality: Optional[str] = XC_MIN_QUALITY,

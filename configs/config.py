@@ -200,6 +200,8 @@ XC_KEEP_BOXLESS     = True
 XC_FEATURES_DIR     = ECHODATA_DIR / "xc_features"
 # File recording which XC batches are already materialised (for resume).
 XC_PROGRESS_FILE    = ECHODATA_DIR / "xc_progress.json"
+# Cache of the enumerated full Xeno-Canto avian species list (all-species mode).
+XC_SPECIES_CACHE    = ECHODATA_DIR / "xc_species_catalogue.json"
 
 # ---------------------------------------------------------------------------
 # Download
