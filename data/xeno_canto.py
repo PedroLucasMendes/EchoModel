@@ -33,29 +33,60 @@ _QUALITY_ORDER = ["A", "B", "C", "D", "E"]
 
 
 # ---------------------------------------------------------------------------
-# Resume support: track which (species) have been fully materialised
+# Resume support: checkpoint progress at both species and batch granularity so
+# a crash mid-species only loses the current batch, not the whole species.
 # ---------------------------------------------------------------------------
 
-def load_progress(progress_file: Path = XC_PROGRESS_FILE) -> set[str]:
-    """Return the set of species labels already processed (for resume)."""
+def _read_progress(progress_file: Path) -> dict:
     p = Path(progress_file)
     if p.exists():
         try:
-            return set(json.loads(p.read_text()).get("done_species", []))
+            data = json.loads(p.read_text())
+            data.setdefault("done_species", [])
+            data.setdefault("done_batches", [])
+            return data
         except Exception as exc:
             log.warning("Could not read progress file %s: %s", p, exc)
-    return set()
+    return {"done_species": [], "done_batches": []}
+
+
+def _write_progress(data: dict, progress_file: Path) -> None:
+    p = Path(progress_file)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    tmp = p.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps({
+        "done_species": sorted(data.get("done_species", [])),
+        "done_batches": sorted(data.get("done_batches", [])),
+    }))
+    tmp.replace(p)  # atomic — never leaves a half-written progress file
+
+
+def load_progress(progress_file: Path = XC_PROGRESS_FILE) -> set[str]:
+    """Return the set of species labels already fully processed (for resume)."""
+    return set(_read_progress(progress_file)["done_species"])
+
+
+def load_done_batches(progress_file: Path = XC_PROGRESS_FILE) -> set[str]:
+    """Return the set of '<label>#<batch_idx>' keys already materialised."""
+    return set(_read_progress(progress_file)["done_batches"])
+
+
+def mark_batch_done(label: str, batch_idx: int,
+                    progress_file: Path = XC_PROGRESS_FILE) -> None:
+    """Checkpoint a single completed batch of a species."""
+    data = _read_progress(progress_file)
+    data["done_batches"] = list(set(data["done_batches"]) | {f"{label}#{batch_idx}"})
+    _write_progress(data, progress_file)
 
 
 def mark_species_done(label: str, progress_file: Path = XC_PROGRESS_FILE) -> None:
-    """Append a species label to the progress file atomically."""
-    p = Path(progress_file)
-    p.parent.mkdir(parents=True, exist_ok=True)
-    done = load_progress(progress_file)
-    done.add(label)
-    tmp = p.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps({"done_species": sorted(done)}))
-    tmp.replace(p)
+    """Mark a species fully done and drop its now-redundant per-batch keys."""
+    data = _read_progress(progress_file)
+    data["done_species"] = list(set(data["done_species"]) | {label})
+    data["done_batches"] = [
+        b for b in data["done_batches"] if not b.startswith(f"{label}#")
+    ]
+    _write_progress(data, progress_file)
 
 
 def _api_key() -> str:
@@ -261,20 +292,24 @@ def iter_species_batches(
     dest_dir: Path = XC_DOWNLOAD_DIR,
     workers: int = XC_DOWNLOAD_WORKERS,
     skip_species: Optional[set[str]] = None,
-) -> Iterator[tuple[str, bool, list[tuple[str, str]]]]:
+    skip_batches: Optional[set[str]] = None,
+) -> Iterator[tuple[str, int, bool, list[tuple[str, str]]]]:
     """
-    Yield ``(label, is_last_batch_of_species, [(audio_path, target), ...])``.
+    Yield ``(label, batch_idx, is_last_batch_of_species, [(audio_path, target)])``.
 
-    Iterates species by species (so resume works at species granularity) and
-    batches the recordings within each species. ``species_to_name`` maps the
-    target label (e.g. an eBird code) to the scientific name used to query XC.
-    The caller must delete each batch's audio (delete_batch) before processing
-    the next, keeping disk usage bounded. Species in ``skip_species`` are not
-    re-downloaded (resume).
+    Iterates species by species and batches the recordings within each species.
+    ``species_to_name`` maps the target label to the scientific name used to
+    query XC. The caller must delete each batch's audio (delete_batch) before
+    the next, keeping disk usage bounded.
+
+    Resume: species in ``skip_species`` are skipped entirely; individual
+    '<label>#<batch_idx>' keys in ``skip_batches`` are skipped so a crash
+    mid-species only re-downloads the batch that was in flight.
     """
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
     skip_species = skip_species or set()
+    skip_batches = skip_batches or set()
 
     for target, sci_name in species_to_name.items():
         if target in skip_species:
@@ -288,17 +323,23 @@ def iter_species_batches(
         log.info("%s (%s): %d recordings", target, sci_name, len(recs))
         if not recs:
             # Still yield an (empty, last) signal so the caller can mark it done.
-            yield (target, True, [])
+            yield (target, 0, True, [])
             continue
 
         jobs = [(rec, target) for rec in recs]
         n_batches = (len(jobs) + batch_size - 1) // batch_size
         for bi in range(n_batches):
+            is_last = bi == n_batches - 1
+            if f"{target}#{bi}" in skip_batches:
+                log.info("  [resume] skipping %s batch %d/%d", target, bi + 1, n_batches)
+                # Still yield an empty batch so the caller advances/marks state.
+                yield (target, bi, is_last, [])
+                continue
             batch_jobs = jobs[bi * batch_size: (bi + 1) * batch_size]
             downloaded = _download_batch(batch_jobs, dest_dir, workers)
             log.info("  %s batch %d/%d: %d/%d files",
                      target, bi + 1, n_batches, len(downloaded), len(batch_jobs))
-            yield (target, bi == n_batches - 1, downloaded)
+            yield (target, bi, is_last, downloaded)
 
 
 def delete_batch(pairs: list[tuple[str, str]]) -> None:

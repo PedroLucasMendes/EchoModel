@@ -112,6 +112,12 @@ def materialise_batch(
 
         stem = Path(audio_path).stem
         for wi, (win_start, win_samples) in enumerate(windows):
+            spec_path = features_dir / f"{stem}_w{wi}.npy"
+            # Resume safety: if this window was already materialised (crash after
+            # save, before the batch was checkpointed), don't redo it or emit a
+            # duplicate index row.
+            if spec_path.exists():
+                continue
             box = _best_box_for_window(win_samples, yolo_model, conf, win_duration)
             has_box = box is not None
             if box is None:
@@ -126,7 +132,6 @@ def materialise_batch(
                 }
 
             spec = audio_to_echo_mel(win_samples, sr=sr)
-            spec_path = features_dir / f"{stem}_w{wi}.npy"
             np.save(spec_path, spec.astype(np.float16))
 
             # Box times are absolute within the 5 s window -> make relative.

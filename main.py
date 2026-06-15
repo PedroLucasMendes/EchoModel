@@ -167,7 +167,8 @@ def stage_pseudo_label(args) -> None:
     from ultralytics import YOLO
     from training.pseudo_labeler import build_pseudo_label_table
     from data.xeno_canto import (
-        iter_species_batches, delete_batch, load_progress, mark_species_done,
+        iter_species_batches, delete_batch,
+        load_progress, load_done_batches, mark_batch_done, mark_species_done,
     )
     from data.xc_materialise import materialise_batch, append_index
     from configs.config import (
@@ -202,19 +203,25 @@ def stage_pseudo_label(args) -> None:
 
     xc_index = ECHODATA_DIR / "xc_index.csv"
     done = load_progress()
-    log.info("Resume: %d species already materialised", len(done))
+    done_batches = load_done_batches()
+    log.info("Resume: %d species done, %d batches checkpointed",
+             len(done), len(done_batches))
 
     total = 0
-    for label, is_last, batch in iter_species_batches(
-        species_to_name, max_per_species=max_per, skip_species=done,
+    for label, batch_idx, is_last, batch in iter_species_batches(
+        species_to_name, max_per_species=max_per,
+        skip_species=done, skip_batches=done_batches,
     ):
         if batch:
             rows = materialise_batch(batch, yolo_model)
             if rows:
                 total = append_index(rows, xc_index)
             delete_batch(batch)  # free disk before next batch
+        # Checkpoint after every batch so a crash mid-species loses at most the
+        # batch in flight, not the whole species.
+        mark_batch_done(label, batch_idx)
         if is_last:
-            mark_species_done(label)  # checkpoint for resume
+            mark_species_done(label)  # collapses the per-batch keys for this species
 
     log.info("Xeno-Canto materialisation done. Index: %s (%d rows) | features: %s",
              xc_index, total, XC_FEATURES_DIR)
