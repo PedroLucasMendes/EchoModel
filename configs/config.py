@@ -2,7 +2,30 @@
 Central configuration for EchoModel.
 All hyperparameters and paths are defined here.
 """
+import os
 from pathlib import Path
+
+
+def _load_dotenv() -> None:
+    """Load KEY=VALUE pairs from a .env at the repo root into os.environ.
+
+    Zero-dependency (no python-dotenv). Existing environment variables win, so
+    an explicitly exported value always overrides the .env file.
+    """
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if not env_path.exists():
+        return
+    for raw in env_path.read_text().splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip().strip('"').strip("'")
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_dotenv()
 
 # ---------------------------------------------------------------------------
 # Paths
