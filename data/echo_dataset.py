@@ -174,8 +174,62 @@ class EchoModelDataset(Dataset):
 
 
 # ---------------------------------------------------------------------------
+# Materialised-feature Dataset (reads precomputed spectrogram .npy files)
+# ---------------------------------------------------------------------------
+
+class MaterialisedFeatureDataset(Dataset):
+    """
+    Reads precomputed log-mel spectrograms (.npy) plus their YOLO-derived
+    boxes from the Xeno-Canto materialised index. Used when the raw audio has
+    been deleted (Perch-scale runs) — see data.xc_materialise.
+
+    Expected columns: spec_path, target, t_min_rel, t_max_rel, f_min, f_max.
+    """
+
+    def __init__(
+        self,
+        index_df: pd.DataFrame,
+        label2idx: dict,
+        fmin: float = ECHO_FMIN,
+        fmax: float = ECHO_FMAX,
+    ):
+        self.df = index_df.reset_index(drop=True)
+        self.label2idx = label2idx
+        self.fmin = fmin
+        self.fmax = fmax
+
+    def __len__(self) -> int:
+        return len(self.df)
+
+    def __getitem__(self, idx: int) -> dict:
+        row = self.df.iloc[idx]
+        spec = np.load(row["spec_path"]).astype(np.float32)
+        spec_t = torch.from_numpy(spec).unsqueeze(0)  # (1, n_mels, T)
+
+        target_idx = self.label2idx[row["target"]]
+        bbox_t = torch.tensor([row["t_min_rel"], row["t_max_rel"]], dtype=torch.float32)
+        f_range = self.fmax - self.fmin
+        f_min_n = min(max((float(row["f_min"]) - self.fmin) / f_range, 0.0), 1.0)
+        f_max_n = min(max((float(row["f_max"]) - self.fmin) / f_range, 0.0), 1.0)
+        bbox_f = torch.tensor([f_min_n, f_max_n], dtype=torch.float32)
+
+        return {
+            "spec":   spec_t,
+            "target": torch.tensor(target_idx, dtype=torch.long),
+            "bbox_t": bbox_t,
+            "bbox_f": bbox_f,
+        }
+
+
+# ---------------------------------------------------------------------------
 # DataLoader factory (DDP-aware)
 # ---------------------------------------------------------------------------
+
+def _stratify_or_none(df: pd.DataFrame):
+    """Stratify by target only when every class has >=2 samples."""
+    counts = df["target"].value_counts()
+    return df["target"] if counts.min() >= 2 else None
+
 
 def make_dataloaders(
     echo_index_df: pd.DataFrame,
@@ -186,20 +240,27 @@ def make_dataloaders(
     num_workers: int = NUM_WORKERS,
     val_frac: float = 0.15,
     seed: int = 42,
+    dataset_cls: type = EchoModelDataset,
 ) -> tuple[DataLoader, DataLoader, DataLoader]:
+    """Build train/val/test loaders.
+
+    ``dataset_cls`` selects the sample source: EchoModelDataset reloads audio
+    on the fly (Zenodo path), MaterialisedFeatureDataset reads precomputed
+    .npy spectrograms (Xeno-Canto path, after audio is deleted).
+    """
     from sklearn.model_selection import train_test_split
 
     train_val_df, test_df = train_test_split(
         echo_index_df, test_size=0.10, random_state=seed,
-        stratify=echo_index_df["target"],
+        stratify=_stratify_or_none(echo_index_df),
     )
     train_df, val_df = train_test_split(
         train_val_df, test_size=val_frac / 0.90, random_state=seed,
-        stratify=train_val_df["target"],
+        stratify=_stratify_or_none(train_val_df),
     )
 
     def _make(df, shuffle):
-        ds = EchoModelDataset(df, label2idx=label2idx)
+        ds = dataset_cls(df, label2idx=label2idx)
         sampler = DistributedSampler(ds, num_replicas=world_size, rank=rank,
                                      shuffle=shuffle, drop_last=True) if world_size > 1 else None
         return DataLoader(

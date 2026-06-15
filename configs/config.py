@@ -115,6 +115,14 @@ W_CLS = 1.0
 W_T   = 0.5
 W_F   = 0.5
 
+# Perch-style training augmentation
+USE_MIXUP        = True
+# Number of components ~ BetaBin(n, a, b) + 1 (Perch preferred N in 2..5).
+MIXUP_N          = 4
+MIXUP_ALPHA      = 2.0
+MIXUP_BETA       = 2.0
+MIXUP_PROB       = 0.5    # fraction of batches to apply mixup to
+
 # ---------------------------------------------------------------------------
 # Pseudo-labelling
 # ---------------------------------------------------------------------------
@@ -136,6 +144,29 @@ XC_MIN_QUALITY      = None
 # Safety cap on recordings per species (None = all available, Perch-style).
 XC_MAX_PER_SPECIES  = None
 XC_DOWNLOAD_WORKERS = 8
+
+# Pilot mode: restrict the run to a handful of species / few recordings each so
+# the whole pipeline (download -> spectrogram -> YOLO boxes -> materialise ->
+# train) can be validated end-to-end before scaling to the full archive.
+XC_PILOT            = True
+XC_PILOT_SPECIES    = 10     # how many species to sample in pilot mode
+XC_PILOT_PER_SPECIES = 5     # recordings per species in pilot mode
+
+# "All species" mode (full Perch-scale run). When True the species list is the
+# entire Xeno-Canto avian catalogue rather than just the Zenodo ground-truth
+# species. Ignored while XC_PILOT is True.
+XC_ALL_SPECIES      = False
+
+# Windows materialised per recording (Perch selects 5 s windows from each file).
+XC_WINDOWS_PER_REC  = 1
+# Window-selection strategy: "random" or "energy_peak" (Perch uses both).
+XC_WINDOW_SELECT    = "energy_peak"
+
+# Directory holding the materialised spectrogram features (.npy). The raw audio
+# is deleted after each batch; only these light tensors persist on disk.
+XC_FEATURES_DIR     = ECHODATA_DIR / "xc_features"
+# File recording which XC batches are already materialised (for resume).
+XC_PROGRESS_FILE    = ECHODATA_DIR / "xc_progress.json"
 
 # ---------------------------------------------------------------------------
 # Download

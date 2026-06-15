@@ -122,3 +122,67 @@ def load_echo_window(
     )
     y = pad_to_length(y, int(win_duration * sr))
     return audio_to_echo_mel(y, sr, n_fft, hop_length, n_mels, fmin, fmax)
+
+
+# ---------------------------------------------------------------------------
+# Window selection from a variable-length recording (Perch 2.0 §2.1)
+# ---------------------------------------------------------------------------
+
+def select_windows(
+    y: np.ndarray,
+    sr: int,
+    win_duration: float = WIN_DURATION,
+    n_windows: int = 1,
+    method: str = "energy_peak",
+    rng: Optional[np.random.Generator] = None,
+) -> list[tuple[float, np.ndarray]]:
+    """
+    Pick ``n_windows`` fixed-length windows from a recording.
+
+    Returns a list of (window_start_seconds, window_samples). Mirrors Perch 2.0:
+      - "random": uniformly random 5 s windows.
+      - "energy_peak": find the loudest 6 s region (RMS envelope) and take a
+        random 5 s window inside it — the labelled species is assumed to be the
+        most prominent sound. Falls back to random when the clip is short.
+    """
+    rng = rng or np.random.default_rng()
+    win_samples = int(win_duration * sr)
+
+    # Short clips: a single padded window is all we can offer.
+    if len(y) <= win_samples:
+        return [(0.0, pad_to_length(y, win_samples))]
+
+    max_start = len(y) - win_samples
+
+    def _random_start() -> int:
+        return int(rng.integers(0, max_start + 1))
+
+    starts: list[int] = []
+    if method == "energy_peak":
+        # RMS envelope over ~100 ms frames; the loudest frame anchors a 6 s span.
+        frame = max(1, int(0.1 * sr))
+        n_frames = len(y) // frame
+        if n_frames >= 1:
+            env = np.array([
+                np.sqrt(np.mean(np.square(y[i * frame:(i + 1) * frame])) + 1e-12)
+                for i in range(n_frames)
+            ])
+            peak_sample = int(env.argmax() * frame)
+            span = int(6.0 * sr)
+            lo = max(0, peak_sample - span // 2)
+            hi = min(len(y), lo + span)
+            lo = max(0, hi - span)
+            for _ in range(n_windows):
+                hi_start = min(max_start, max(lo, hi - win_samples))
+                lo_start = min(lo, hi_start)
+                starts.append(int(rng.integers(lo_start, hi_start + 1)))
+        else:
+            starts = [_random_start() for _ in range(n_windows)]
+    else:  # "random"
+        starts = [_random_start() for _ in range(n_windows)]
+
+    out = []
+    for s in starts:
+        seg = pad_to_length(y[s:s + win_samples], win_samples)
+        out.append((s / sr, seg))
+    return out

@@ -27,8 +27,9 @@ import pandas as pd
 from configs.config import (
     NUM_EPOCHS, LR, WEIGHT_DECAY, ECHOMODEL_DIR,
     BATCH_SIZE, EMBED_DIM, NUM_HEADS, NUM_LAYERS,
+    USE_MIXUP, MIXUP_N, MIXUP_ALPHA, MIXUP_BETA, MIXUP_PROB,
 )
-from models.echomodel import EchoModel, echomodel_loss
+from models.echomodel import EchoModel, echomodel_loss, mixup_batch
 
 log = logging.getLogger(__name__)
 
@@ -63,9 +64,11 @@ def run_epoch(
     optimizer: torch.optim.Optimizer | None = None,
     scaler: GradScaler | None = None,
     accum_steps: int = 1,
+    num_classes: int | None = None,
 ) -> tuple[float, dict]:
     is_train = optimizer is not None
     model.train() if is_train else model.eval()
+    use_mixup = is_train and USE_MIXUP and num_classes is not None
 
     total_loss = 0.0
     comp_losses = {"cls": 0.0, "time": 0.0, "freq": 0.0}
@@ -79,11 +82,20 @@ def run_epoch(
             bbox_t_true  = batch["bbox_t"].to(device, non_blocking=True)
             bbox_f_true  = batch["bbox_f"].to(device, non_blocking=True)
 
+            # Perch-style mixup on a fraction of training batches. The mixed
+            # spectrogram gets a multi-hot soft target; boxes keep the primary.
+            cls_target = target
+            if use_mixup and torch.rand(1).item() < MIXUP_PROB:
+                spec, cls_target = mixup_batch(
+                    spec, target, num_classes,
+                    n=MIXUP_N, alpha=MIXUP_ALPHA, beta=MIXUP_BETA,
+                )
+
             with torch.autocast(device_type="cuda", dtype=_AMP_DTYPE):
                 class_logits, bbox_t_pred, bbox_f_pred = model(spec)
                 loss, comps = echomodel_loss(
                     class_logits, bbox_t_pred, bbox_f_pred,
-                    target, bbox_t_true, bbox_f_true,
+                    cls_target, bbox_t_true, bbox_f_true,
                 )
                 loss = loss / accum_steps
 
@@ -160,7 +172,8 @@ def train_echomodel(
             train_loader.sampler.set_epoch(epoch)
 
         train_loss, train_c = run_epoch(
-            model, train_loader, device, optimizer, scaler, accum_steps)
+            model, train_loader, device, optimizer, scaler, accum_steps,
+            num_classes=num_classes)
         val_loss,   val_c   = run_epoch(model, val_loader, device)
         scheduler.step()
 

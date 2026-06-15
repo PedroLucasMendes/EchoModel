@@ -118,12 +118,49 @@ def stage_train_yolo(args) -> None:
 # Stage: pseudo_label
 # ---------------------------------------------------------------------------
 
+def _resolve_xc_species(datasets: list[str]) -> dict[str, str]:
+    """Build {label -> scientific name} for the XC run, honouring pilot/all modes."""
+    from data.annotations import load_all_annotations, load_species_map
+    from configs.config import (
+        XC_PILOT, XC_PILOT_SPECIES, XC_ALL_SPECIES,
+    )
+
+    species_map = load_species_map(datasets=datasets, raw_dir=RAW_DIR)
+    bbox_df = load_all_annotations(datasets=datasets, raw_dir=RAW_DIR)
+    gt_labels = set(bbox_df["label"].unique())
+
+    # Base set: Zenodo ground-truth species that have a scientific name.
+    species_to_name = {
+        lab: species_map[lab] for lab in gt_labels if species_map.get(lab)
+    }
+
+    if XC_PILOT:
+        # Deterministic small sample so reruns hit the same species.
+        chosen = sorted(species_to_name)[:XC_PILOT_SPECIES]
+        species_to_name = {lab: species_to_name[lab] for lab in chosen}
+        log.info("[PILOT] %d species: %s", len(species_to_name), chosen)
+    elif XC_ALL_SPECIES:
+        # Full Perch-scale catalogue is not enumerated here yet; until that is
+        # wired up we use the full species_map (every label we can name).
+        species_to_name = {k: v for k, v in species_map.items() if v}
+        log.info("[ALL] %d species from species map", len(species_to_name))
+    else:
+        log.info("%d Zenodo ground-truth species", len(species_to_name))
+
+    return species_to_name
+
+
 def stage_pseudo_label(args) -> None:
     import pandas as pd
     from ultralytics import YOLO
     from training.pseudo_labeler import build_pseudo_label_table
-    from data.annotations import load_all_annotations, load_species_map
-    from data.xeno_canto import iter_species_batches, delete_batch
+    from data.xeno_canto import (
+        iter_species_batches, delete_batch, load_progress, mark_species_done,
+    )
+    from data.xc_materialise import materialise_batch, append_index
+    from configs.config import (
+        XC_PILOT, XC_PILOT_PER_SPECIES, XC_FEATURES_DIR,
+    )
 
     screening_csv = YOLO_RUNS_DIR / "yolo_screening.csv"
     if not screening_csv.exists():
@@ -132,7 +169,6 @@ def stage_pseudo_label(args) -> None:
     results_df = pd.read_csv(screening_csv)
     best_row   = results_df.iloc[0]
     best_name  = best_row["model"]
-    # Prefer the weights path recorded during screening; fall back to rebuilding.
     weights = best_row["weights"] if "weights" in results_df.columns else None
     if not weights or not Path(weights).exists():
         weights = YOLO_RUNS_DIR / best_name / "weights" / "best.pt"
@@ -145,35 +181,31 @@ def stage_pseudo_label(args) -> None:
         build_pseudo_label_table(pairs, "xeno_canto", yolo_model)
         return
 
-    # --- Path B: download Xeno-Canto in batches (Perch-style) ----------------
+    # --- Path B: download XC in batches, materialise features, delete audio ---
     datasets = args.datasets if args.datasets else DATASETS_TO_DOWNLOAD
-    bbox_df  = load_all_annotations(datasets=datasets, raw_dir=RAW_DIR)
-    species_map = load_species_map(datasets=datasets, raw_dir=RAW_DIR)
+    species_to_name = _resolve_xc_species(datasets)
 
-    # Only query species that actually appear in our ground-truth labels, so the
-    # pseudo-labels stay within the EchoModel class set.
-    gt_labels = set(bbox_df["label"].unique())
-    species_to_name = {
-        lab: species_map.get(lab, "")
-        for lab in gt_labels
-        if species_map.get(lab)
-    }
-    missing = gt_labels - set(species_to_name)
-    if missing:
-        log.warning("No scientific name for %d labels (skipped): %s",
-                    len(missing), sorted(missing))
-    log.info("Pseudo-labelling %d species from Xeno-Canto", len(species_to_name))
+    # In pilot mode cap recordings per species so the run finishes quickly.
+    max_per = XC_PILOT_PER_SPECIES if XC_PILOT else None
+
+    xc_index = ECHODATA_DIR / "xc_index.csv"
+    done = load_progress()
+    log.info("Resume: %d species already materialised", len(done))
 
     total = 0
-    for batch in iter_species_batches(species_to_name):
-        if not batch:
-            continue
-        df = build_pseudo_label_table(batch, "xeno_canto", yolo_model)
-        total = len(df)
-        # Free disk before fetching the next batch — keeps usage bounded.
-        delete_batch(batch)
+    for label, is_last, batch in iter_species_batches(
+        species_to_name, max_per_species=max_per, skip_species=done,
+    ):
+        if batch:
+            rows = materialise_batch(batch, yolo_model)
+            if rows:
+                total = append_index(rows, xc_index)
+            delete_batch(batch)  # free disk before next batch
+        if is_last:
+            mark_species_done(label)  # checkpoint for resume
 
-    log.info("Xeno-Canto pseudo-labelling done. Total pseudo-label rows: %d", total)
+    log.info("Xeno-Canto materialisation done. Index: %s (%d rows) | features: %s",
+             xc_index, total, XC_FEATURES_DIR)
 
 
 # ---------------------------------------------------------------------------
@@ -217,7 +249,9 @@ def stage_build_echo(args) -> None:
 
 def stage_train_echo(args) -> None:
     import pandas as pd
-    from data.echo_dataset import make_dataloaders
+    from data.echo_dataset import (
+        make_dataloaders, EchoModelDataset, MaterialisedFeatureDataset,
+    )
     from training.echo_trainer import train_echomodel, setup_ddp, cleanup_ddp
 
     rank, world_size = _ddp_rank()
@@ -227,9 +261,18 @@ def stage_train_echo(args) -> None:
 
     setup_logging(rank=rank)
 
-    index_csv = ECHODATA_DIR / "echomodel_index.csv"
-    if not index_csv.exists():
-        raise FileNotFoundError("Run build_echo first.")
+    # Prefer the Xeno-Canto materialised index (precomputed spectrograms) when
+    # it exists; otherwise fall back to the Zenodo audio-based index.
+    xc_index   = ECHODATA_DIR / "xc_index.csv"
+    zen_index  = ECHODATA_DIR / "echomodel_index.csv"
+    if xc_index.exists():
+        index_csv, dataset_cls = xc_index, MaterialisedFeatureDataset
+        log.info("Training on materialised Xeno-Canto features: %s", index_csv)
+    elif zen_index.exists():
+        index_csv, dataset_cls = zen_index, EchoModelDataset
+        log.info("Training on Zenodo audio index: %s", index_csv)
+    else:
+        raise FileNotFoundError("No training index found. Run build_echo or pseudo_label first.")
 
     echo_index_df = pd.read_csv(index_csv)
     labels        = sorted(echo_index_df["target"].unique())
@@ -242,6 +285,7 @@ def stage_train_echo(args) -> None:
         rank=rank, world_size=world_size,
         batch_size=args.batch_size,
         num_workers=args.workers,
+        dataset_cls=dataset_cls,
     )
 
     model = train_echomodel(

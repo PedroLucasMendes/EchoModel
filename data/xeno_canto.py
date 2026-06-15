@@ -13,6 +13,7 @@ XENO_CANTO_API_KEY environment variable — the v3 API rejects unauthenticated
 requests.
 """
 import os
+import json
 import logging
 from pathlib import Path
 from typing import Iterator, Optional
@@ -23,12 +24,38 @@ import requests
 from configs.config import (
     XC_API_URL, XC_DOWNLOAD_DIR, XC_BATCH_SIZE,
     XC_MIN_QUALITY, XC_MAX_PER_SPECIES, XC_DOWNLOAD_WORKERS,
-    DOWNLOAD_CHUNK_SIZE,
+    XC_PROGRESS_FILE, DOWNLOAD_CHUNK_SIZE,
 )
 
 log = logging.getLogger(__name__)
 
 _QUALITY_ORDER = ["A", "B", "C", "D", "E"]
+
+
+# ---------------------------------------------------------------------------
+# Resume support: track which (species) have been fully materialised
+# ---------------------------------------------------------------------------
+
+def load_progress(progress_file: Path = XC_PROGRESS_FILE) -> set[str]:
+    """Return the set of species labels already processed (for resume)."""
+    p = Path(progress_file)
+    if p.exists():
+        try:
+            return set(json.loads(p.read_text()).get("done_species", []))
+        except Exception as exc:
+            log.warning("Could not read progress file %s: %s", p, exc)
+    return set()
+
+
+def mark_species_done(label: str, progress_file: Path = XC_PROGRESS_FILE) -> None:
+    """Append a species label to the progress file atomically."""
+    p = Path(progress_file)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    done = load_progress(progress_file)
+    done.add(label)
+    tmp = p.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps({"done_species": sorted(done)}))
+    tmp.replace(p)
 
 
 def _api_key() -> str:
@@ -129,6 +156,24 @@ def _download_one(rec: dict, target: str, dest_dir: Path) -> Optional[tuple[str,
     return (str(dest), target)
 
 
+def _download_batch(
+    batch_jobs: list[tuple[dict, str]],
+    dest_dir: Path,
+    workers: int,
+) -> list[tuple[str, str]]:
+    downloaded: list[tuple[str, str]] = []
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [
+            pool.submit(_download_one, rec, target, dest_dir)
+            for rec, target in batch_jobs
+        ]
+        for fut in as_completed(futures):
+            res = fut.result()
+            if res is not None:
+                downloaded.append(res)
+    return downloaded
+
+
 def iter_species_batches(
     species_to_name: dict[str, str],
     batch_size: int = XC_BATCH_SIZE,
@@ -136,47 +181,45 @@ def iter_species_batches(
     max_per_species: Optional[int] = XC_MAX_PER_SPECIES,
     dest_dir: Path = XC_DOWNLOAD_DIR,
     workers: int = XC_DOWNLOAD_WORKERS,
-) -> Iterator[list[tuple[str, str]]]:
+    skip_species: Optional[set[str]] = None,
+) -> Iterator[tuple[str, bool, list[tuple[str, str]]]]:
     """
-    Yield batches of (local_audio_path, target) pairs, downloading on demand.
+    Yield ``(label, is_last_batch_of_species, [(audio_path, target), ...])``.
 
-    ``species_to_name`` maps the dataset target label (e.g. an eBird code) to
-    the scientific name used to query Xeno-Canto. After the caller finishes a
-    batch it must delete the audio files (see delete_batch) before the next
-    batch is yielded so disk usage stays bounded.
+    Iterates species by species (so resume works at species granularity) and
+    batches the recordings within each species. ``species_to_name`` maps the
+    target label (e.g. an eBird code) to the scientific name used to query XC.
+    The caller must delete each batch's audio (delete_batch) before processing
+    the next, keeping disk usage bounded. Species in ``skip_species`` are not
+    re-downloaded (resume).
     """
     dest_dir = Path(dest_dir)
     dest_dir.mkdir(parents=True, exist_ok=True)
+    skip_species = skip_species or set()
 
-    # Flatten all (recording, target) jobs across species, then batch them.
-    jobs: list[tuple[dict, str]] = []
     for target, sci_name in species_to_name.items():
+        if target in skip_species:
+            log.info("[resume] skipping already-done species %s", target)
+            continue
         if not sci_name:
             log.warning("No scientific name for target %s — skipping", target)
             continue
+
         recs = list_recordings(sci_name, min_quality, max_per_species)
         log.info("%s (%s): %d recordings", target, sci_name, len(recs))
-        jobs.extend((rec, target) for rec in recs)
+        if not recs:
+            # Still yield an (empty, last) signal so the caller can mark it done.
+            yield (target, True, [])
+            continue
 
-    log.info("Total recordings to download: %d (batch size %d)", len(jobs), batch_size)
-
-    for start in range(0, len(jobs), batch_size):
-        batch_jobs = jobs[start: start + batch_size]
-        downloaded: list[tuple[str, str]] = []
-        with ThreadPoolExecutor(max_workers=workers) as pool:
-            futures = [
-                pool.submit(_download_one, rec, target, dest_dir)
-                for rec, target in batch_jobs
-            ]
-            for fut in as_completed(futures):
-                res = fut.result()
-                if res is not None:
-                    downloaded.append(res)
-        log.info(
-            "Batch %d–%d: downloaded %d/%d files",
-            start, start + len(batch_jobs), len(downloaded), len(batch_jobs),
-        )
-        yield downloaded
+        jobs = [(rec, target) for rec in recs]
+        n_batches = (len(jobs) + batch_size - 1) // batch_size
+        for bi in range(n_batches):
+            batch_jobs = jobs[bi * batch_size: (bi + 1) * batch_size]
+            downloaded = _download_batch(batch_jobs, dest_dir, workers)
+            log.info("  %s batch %d/%d: %d/%d files",
+                     target, bi + 1, n_batches, len(downloaded), len(batch_jobs))
+            yield (target, bi == n_batches - 1, downloaded)
 
 
 def delete_batch(pairs: list[tuple[str, str]]) -> None:

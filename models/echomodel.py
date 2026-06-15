@@ -67,7 +67,17 @@ def echomodel_loss(
     w_t:   float = W_T,
     w_f:   float = W_F,
 ) -> tuple[torch.Tensor, dict]:
-    loss_cls = F.cross_entropy(class_logits, target)
+    """Classification + time/frequency localisation loss.
+
+    ``target`` may be either hard integer labels (shape [B]) or a soft/multi-hot
+    target distribution (shape [B, C], e.g. from mixup). The latter follows
+    Perch 2.0, which uses soft cross-entropy so every vocalisation in a mixed
+    window is recognised regardless of loudness.
+    """
+    if target.dim() == 1:
+        loss_cls = F.cross_entropy(class_logits, target)
+    else:
+        loss_cls = soft_cross_entropy(class_logits, target)
     loss_t   = F.smooth_l1_loss(bbox_t_pred, bbox_t_true)
     loss_f   = F.smooth_l1_loss(bbox_f_pred, bbox_f_true)
     total    = w_cls * loss_cls + w_t * loss_t + w_f * loss_f
@@ -76,3 +86,52 @@ def echomodel_loss(
         "time": loss_t.item(),
         "freq": loss_f.item(),
     }
+
+
+def soft_cross_entropy(logits: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
+    """Cross entropy against a (possibly multi-hot) soft target distribution."""
+    log_probs = F.log_softmax(logits, dim=1)
+    return -(target * log_probs).sum(dim=1).mean()
+
+
+def mixup_batch(
+    spec: torch.Tensor,
+    target: torch.Tensor,
+    num_classes: int,
+    n: int = 4,
+    alpha: float = 2.0,
+    beta: float = 2.0,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Perch-style multi-component mixup.
+
+    Mixes ``N ~ BetaBin(n, alpha, beta) + 1`` shuffled copies of the batch with
+    Dirichlet weights, rescaling by sqrt(sum w_i^2) to preserve gain, and builds
+    a multi-hot target (max over components) rather than a weighted average —
+    so every species present should be predicted with high confidence.
+
+    Returns (mixed_spec, multi_hot_target [B, C]). The bounding-box targets are
+    left to the caller; mixed windows keep the *primary* (first-component) box.
+    """
+    B = spec.size(0)
+    device = spec.device
+
+    # Number of components for this batch.
+    k = int(torch.distributions.Beta(alpha, beta).sample().item() * n)
+    k = max(1, min(n, k)) + 1  # BetaBin(n,..)+1, clamped to [2, n+1]
+
+    # Dirichlet weights, gain-preserving normalisation.
+    w = torch.distributions.Dirichlet(torch.ones(k, device=device)).sample()
+    w = w / torch.sqrt((w ** 2).sum())
+
+    mixed = torch.zeros_like(spec)
+    multi_hot = torch.zeros(B, num_classes, device=device)
+    base_onehot = F.one_hot(target, num_classes).float()
+
+    for i in range(k):
+        # First component keeps the original order so the retained bounding box
+        # (left unchanged by the caller) matches a real component in the mix.
+        perm = torch.arange(B, device=device) if i == 0 else torch.randperm(B, device=device)
+        mixed = mixed + w[i] * spec[perm]
+        multi_hot = torch.maximum(multi_hot, base_onehot[perm])
+
+    return mixed, multi_hot
