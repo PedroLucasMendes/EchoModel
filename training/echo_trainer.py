@@ -38,9 +38,14 @@ _AMP_DTYPE = torch.bfloat16   # H200 has native bf16
 
 def _warmup_cosine_scheduler(optimizer, warmup_epochs: int, total_epochs: int):
     from torch.optim.lr_scheduler import SequentialLR, LinearLR, CosineAnnealingLR
+    # Keep warmup strictly shorter than the run and the cosine phase >= 1 epoch,
+    # otherwise CosineAnnealingLR gets T_max=0 and divides by zero (e.g. a short
+    # pilot with epochs <= warmup_epochs).
+    warmup_epochs = max(1, min(warmup_epochs, total_epochs - 1))
+    cosine_epochs = max(1, total_epochs - warmup_epochs)
     warmup = LinearLR(optimizer, start_factor=1e-3, end_factor=1.0,
                       total_iters=warmup_epochs)
-    cosine = CosineAnnealingLR(optimizer, T_max=total_epochs - warmup_epochs)
+    cosine = CosineAnnealingLR(optimizer, T_max=cosine_epochs)
     return SequentialLR(optimizer, schedulers=[warmup, cosine],
                         milestones=[warmup_epochs])
 
